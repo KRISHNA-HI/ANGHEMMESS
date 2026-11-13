@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ANGHEMMESS - Real-Time Private Encrypted Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ANGHEMMESS - Private Encrypted Chat</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <!-- Lucide Icons CDN -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
   <script>
@@ -28,19 +28,6 @@
               500: '#10b981',
               600: '#059669',
               700: '#047857',
-            },
-            zinc: {
-              950: '#0b141a',
-              900: '#111b21',
-              850: '#1c2830',
-              800: '#222d34',
-              700: '#3b4a54',
-              600: '#62717a',
-              500: '#8696a0',
-              400: '#a6b4be',
-              300: '#d1d7db',
-              200: '#e9edef',
-              100: '#fafafa'
             }
           }
         }
@@ -50,316 +37,257 @@
   <style>
     /* Styling scrollbars */
     ::-webkit-scrollbar {
-      width: 6px;
+      width: 5px;
     }
     ::-webkit-scrollbar-track {
       background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(156, 163, 175, 0.3);
-      border-radius: 10px;
+      background: rgba(160, 170, 185, 0.3);
+      border-radius: 9999px;
     }
     .dark ::-webkit-scrollbar-thumb {
-      background: rgba(75, 85, 99, 0.5);
+      background: rgba(255, 255, 255, 0.15);
     }
-    
-    /* Elegant WhatsApp-inspired status bar */
-    .chat-bg {
-      background-image: radial-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 0),
-                        radial-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 0);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
-    }
-    .dark .chat-bg {
-      background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0),
-                        radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
-    }
-    
-    /* Animation for typing pulse */
-    @keyframes typing {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-3px); }
-    }
-    .dot-1 { animation: typing 1s infinite 0.1s; }
-    .dot-2 { animation: typing 1s infinite 0.2s; }
-    .dot-3 { animation: typing 1s infinite 0.3s; }
 
-    /* Custom overlay and transition */
-    .fade-transition {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Bubbly elastic tactile micro-interactions */
+    .bubbly {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      touch-action: manipulation;
     }
-    
-    /* Maximum fit for embedding in static content layout */
+    .bubbly:active {
+      transform: scale(0.93) !important;
+    }
+
+    /* Subtle dot grid for chat surface */
+    .glass-canvas {
+      background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+    .dark .glass-canvas {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+
+    /* Prevent double-tap zoom on mobile */
     body {
       touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-gray-100 font-sans select-none overflow-hidden h-screen w-full flex flex-col items-center justify-center">
+<body class="bg-gradient-to-br from-slate-100 via-gray-100 to-emerald-50/30 text-zinc-900 transition-colors duration-500 dark:from-zinc-950 dark:via-[#090d10] dark:to-zinc-950 dark:text-zinc-100 font-sans select-none overflow-hidden h-screen w-full flex flex-col items-center justify-center p-0 sm:p-4">
 
-  <!-- Persistent Network Connection Bar -->
-  <div id="connBar" class="w-full bg-slate-800 text-white text-xs py-1.5 px-4 text-center font-medium hidden flex items-center justify-between transition-all select-none z-30 shadow-sm">
-    <div class="flex items-center gap-1.5 mx-auto">
-      <i data-lucide="wifi" id="connIcon" class="w-3.5 h-3.5"></i>
-      <span id="connText">Checking service connection...</span>
-    </div>
-    <button id="connRetryBtn" class="hidden text-[11px] underline ml-2 hover:text-amber-200 cursor-pointer font-semibold">Retry</button>
+  <!-- Persistent Network Connection Bar (Glass Capsule) -->
+  <div id="connBar" class="fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium hidden items-center gap-2 shadow-lg backdrop-blur-xl border transition-all duration-300 select-none">
+    <i data-lucide="wifi" id="connIcon" class="w-3.5 h-3.5"></i>
+    <span id="connText">Checking connection...</span>
+    <button id="connRetryBtn" class="bubbly hidden text-[11px] underline ml-1 cursor-pointer font-bold">Retry</button>
   </div>
 
-  <div class="w-full h-full max-w-md bg-white dark:bg-zinc-900 shadow-2xl relative flex flex-col overflow-hidden border-x border-gray-200 dark:border-zinc-800">
+  <!-- APP GLASS SHELL -->
+  <div class="w-full h-full sm:max-w-md sm:h-[92vh] sm:max-h-[860px] bg-white/75 dark:bg-zinc-900/75 backdrop-blur-2xl shadow-2xl relative flex flex-col overflow-hidden sm:rounded-[36px] border border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
     
-    <!-- HEADER -->
-    <header class="bg-gradient-to-r from-brand-600 to-brand-700 dark:from-zinc-800 dark:to-zinc-900 text-white px-4 py-3 shadow-md flex items-center justify-between z-10 transition-colors duration-300">
-      <div class="flex items-center gap-2">
-        <div class="p-1.5 bg-white/10 rounded-xl">
-          <i data-lucide="message-square-more" class="w-6 h-6 text-white"></i>
+    <!-- MINIMAL HEADER -->
+    <header class="px-5 py-3.5 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border-b border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between z-20">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 flex items-center justify-center">
+          <i data-lucide="shield" class="w-4 h-4 text-emerald-600 dark:text-emerald-400"></i>
         </div>
-        <div>
-          <h1 class="font-bold flex items-center gap-1 text-base tracking-tight select-text">
-            <span>ANGHEMMESS</span>
-          </h1>
-          <p id="subStatus" class="text-[10px] text-white/80 font-medium font-sans">E2EE Private Room</p>
-        </div>
+        <span class="font-bold tracking-tight text-sm text-zinc-900 dark:text-white select-none">ANGHEMMESS</span>
       </div>
-      <div class="flex items-center gap-2">
+
+      <div class="flex items-center gap-1.5">
         <!-- Theme Toggle -->
-        <button id="themeToggleBtn" class="p-2 hover:bg-white/10 active:scale-95 rounded-xl transition duration-150 relative cursor-pointer" title="Toggle Theme" aria-label="Toggle Theme">
+        <button id="themeToggleBtn" class="bubbly p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-zinc-600 dark:text-zinc-300 cursor-pointer" title="Toggle Theme" aria-label="Toggle Theme">
           <i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i>
         </button>
         <!-- Logged-in Menu Button (Leave) -->
-        <button id="leaveRoomActionBtn" class="hidden p-2 hover:bg-red-500/20 text-red-100 hover:text-red-300 active:scale-95 rounded-xl transition duration-150 cursor-pointer" title="Leave room" aria-label="Leave room">
+        <button id="leaveRoomActionBtn" class="bubbly hidden p-2 hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-full cursor-pointer" title="Leave room" aria-label="Leave room">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
     </header>
 
     <!-- MAIN BODY -->
-    <main class="flex-1 w-full flex flex-col bg-gray-50 dark:bg-zinc-950/70 chat-bg relative overflow-hidden">
+    <main class="flex-1 w-full flex flex-col glass-canvas relative overflow-hidden">
       
-      <!-- SCREEN 1: LOGIN & INITIAL ACTION -->
-      <section id="loginScreen" class="absolute inset-0 z-20 flex flex-col justify-start items-center p-5 bg-white dark:bg-zinc-900 transition-all duration-300 overflow-y-auto">
-        <div class="w-full my-auto flex flex-col justify-center max-w-sm py-2">
-          <div class="text-center mb-5">
-            <div class="my-2 mx-auto w-12 h-12 bg-brand-500/10 rounded-2xl flex items-center justify-center">
-              <i data-lucide="lock" class="w-6 h-6 text-brand-600 dark:text-brand-500"></i>
+      <!-- SCREEN 1: LOGIN & INITIAL ACTION (CENTERED MINIMALIST) -->
+      <section id="loginScreen" class="absolute inset-0 z-20 flex flex-col justify-center items-center p-6 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl transition-all duration-300 overflow-y-auto">
+        <div class="w-full my-auto flex flex-col justify-center items-center max-w-sm py-4">
+          
+          <!-- Centered Brand Unit -->
+          <div class="text-center mb-8 flex flex-col items-center">
+            <div class="bubbly mb-3 w-16 h-16 bg-gradient-to-tr from-emerald-500/20 to-teal-400/10 dark:from-emerald-500/15 dark:to-teal-400/5 rounded-3xl flex items-center justify-center shadow-inner border border-emerald-500/20">
+              <i data-lucide="shield-check" class="w-8 h-8 text-emerald-600 dark:text-emerald-400"></i>
             </div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">ANGHEMMESS</h2>
-            <p class="text-xs text-gray-500 dark:text-zinc-400 mt-1">Start a private, encrypted conversation</p>
+            <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white select-none">ANGHEMMESS</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium select-none">Private, encrypted conversations</p>
           </div>
 
           <!-- Step 1: Input Profile Info -->
-          <div class="space-y-4">
+          <div class="w-full space-y-4">
             <div>
-              <label for="usernameInput" class="block text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-widest mb-1.5">Your Nickname</label>
+              <label for="usernameInput" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1.5 pl-1">Your Nickname</label>
               <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">
-                  <i data-lucide="user" class="w-4.5 h-4.5"></i>
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-zinc-400 pointer-events-none">
+                  <i data-lucide="user" class="w-4 h-4"></i>
                 </span>
-                <input type="text" id="usernameInput" maxlength="25" placeholder="e.g. Alex, Sam" autocomplete="nickname"
-                       class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-150">
+                <input type="text" id="usernameInput" maxlength="25" placeholder="e.g. Alex" autocomplete="nickname"
+                       class="w-full bg-white/80 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all shadow-xs">
               </div>
-              <p id="usernameError" class="text-[11px] text-rose-500 mt-1 hidden font-medium flex items-center gap-1"></p>
+              <p id="usernameError" class="text-[11px] text-rose-500 mt-1.5 pl-1 hidden font-medium flex items-center gap-1"></p>
             </div>
 
             <!-- Login Auto Save Check -->
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="rememberMeInput" class="w-4 h-4 rounded text-brand-600 border-gray-300 focus:ring-brand-500 dark:bg-zinc-800">
-                <label for="rememberMeInput" class="text-xs text-gray-700 dark:text-zinc-300 cursor-pointer select-none font-medium">Remember my nickname on this browser</label>
-              </div>
-              <p class="text-[10px] text-gray-500 dark:text-zinc-500 pl-6 select-none">Unchecked by default. Room keys and chat messages are never permanently stored.</p>
+            <div class="flex items-center gap-2.5 pl-1">
+              <input type="checkbox" id="rememberMeInput" class="w-4 h-4 rounded-md text-emerald-600 border-zinc-300 dark:border-zinc-700 focus:ring-emerald-500/30 dark:bg-zinc-800 cursor-pointer">
+              <label for="rememberMeInput" class="text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer select-none font-medium">Remember on this device</label>
             </div>
 
-            <div class="pt-1 border-t border-gray-200 dark:border-zinc-800 my-1"></div>
+            <div class="pt-2 border-t border-black/[0.04] dark:border-white/[0.06] my-2"></div>
 
-            <!-- Room Choice Selection -->
+            <!-- Room Choice Selection (Pill Buttons) -->
             <div class="grid grid-cols-2 gap-3" id="mainWelcomeActions">
-              <button id="btnInitCreate" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md active:scale-95 transition-all text-xs flex flex-col items-center justify-center gap-1.5 cursor-pointer">
-                <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                Create Room
+              <button id="btnInitCreate" class="bubbly w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3.5 px-4 rounded-full shadow-lg shadow-emerald-600/20 text-xs flex items-center justify-center gap-2 cursor-pointer border-0">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Create Room</span>
               </button>
-              <button id="btnInitJoin" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-800 dark:text-white font-semibold py-3 px-4 rounded-xl active:scale-95 transition-all text-xs flex flex-col items-center justify-center gap-1.5 cursor-pointer border border-gray-200 dark:border-zinc-700">
-                <i data-lucide="log-in" class="w-5 h-5"></i>
-                Join Existing
+              <button id="btnInitJoin" class="bubbly w-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 text-zinc-800 dark:text-zinc-100 font-semibold py-3.5 px-4 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer border border-zinc-200/80 dark:border-zinc-700/80 shadow-xs">
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+                <span>Join Room</span>
               </button>
             </div>
 
-            <!-- Panel for Creating -->
-            <div id="createSubPanel" class="hidden space-y-3 animate-fadeIn">
+            <!-- Panel for Creating (Glass Slide) -->
+            <div id="createSubPanel" class="hidden space-y-4">
               <div>
-                <label for="createRoomPasswordInput" class="block text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-widest mb-1.5">Set Room Password (E2EE)</label>
+                <label for="createRoomPasswordInput" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1.5 pl-1">Set Room Password</label>
                 <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">
-                    <i data-lucide="shield" class="w-4.5 h-4.5"></i>
+                  <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-zinc-400 pointer-events-none">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
                   </span>
                   <input type="password" id="createRoomPasswordInput" placeholder="Min 6 characters" autocomplete="new-password"
-                         class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-xl py-3 pl-10 pr-10 text-sm font-semibold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-150">
-                  <button type="button" class="toggle-password-btn absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-zinc-200 cursor-pointer" data-target="createRoomPasswordInput" aria-label="Toggle password visibility">
+                         class="w-full bg-white/80 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl py-3.5 pl-11 pr-11 text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all shadow-xs">
+                  <button type="button" class="toggle-password-btn bubbly absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer" data-target="createRoomPasswordInput" aria-label="Toggle password visibility">
                     <i data-lucide="eye" class="w-4 h-4"></i>
                   </button>
                 </div>
-                <p id="createPasswordError" class="text-[11px] text-rose-500 mt-1 hidden font-medium flex items-center gap-1"></p>
-                <p class="text-[10px] text-gray-500 dark:text-zinc-400 mt-1 select-none">Derives AES-GCM 256 keys on your device via PBKDF2 (100,000 rounds). Never sent over network.</p>
+                <p id="createPasswordError" class="text-[11px] text-rose-500 mt-1.5 pl-1 hidden font-medium flex items-center gap-1"></p>
               </div>
-              <button id="btnConfirmCreate" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-xl font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
-                <i data-lucide="sparkles" class="w-4.5 h-4.5"></i>
-                Generate Secure Room &rarr;
+              <button id="btnConfirmCreate" class="bubbly w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-full font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 border-0">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>Generate Room</span>
               </button>
-              <button class="w-full text-center text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200 py-1.5 cursor-pointer btnBackToActions">
-                &larr; Choose Different Options
+              <button class="bubbly w-full text-center text-xs text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 py-1.5 cursor-pointer btnBackToActions">
+                &larr; Back
               </button>
             </div>
 
-            <!-- Panel for Joining -->
-            <div id="joinSubPanel" class="hidden space-y-3 animate-fadeIn">
+            <!-- Panel for Joining (Glass Slide) -->
+            <div id="joinSubPanel" class="hidden space-y-3.5">
               <div>
-                <label for="roomCodeInput" class="block text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-widest mb-1.5">Enter Room Code</label>
+                <label for="roomCodeInput" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1.5 pl-1">Room Code</label>
                 <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">
-                    <i data-lucide="key-round" class="w-4.5 h-4.5"></i>
+                  <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-zinc-400 pointer-events-none">
+                    <i data-lucide="key" class="w-4 h-4"></i>
                   </span>
                   <input type="text" id="roomCodeInput" maxlength="12" placeholder="e.g. R-1234" autocomplete="off"
-                         class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-xl py-3 pl-10 pr-4 text-sm font-semibold uppercase tracking-wider text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-150">
+                         class="w-full bg-white/80 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl py-3.5 pl-11 pr-4 text-sm font-semibold uppercase tracking-wider text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all shadow-xs">
                 </div>
-                <p id="roomCodeError" class="text-[11px] text-rose-500 mt-1 hidden font-medium flex items-center gap-1"></p>
+                <p id="roomCodeError" class="text-[11px] text-rose-500 mt-1.5 pl-1 hidden font-medium flex items-center gap-1"></p>
               </div>
               <div>
-                <label for="joinRoomPasswordInput" class="block text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-widest mb-1.5 font-sans">Enter Room Password</label>
+                <label for="joinRoomPasswordInput" class="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-widest mb-1.5 pl-1">Room Password</label>
                 <div class="relative">
-                  <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 pointer-events-none">
-                    <i data-lucide="shield" class="w-4.5 h-4.5"></i>
+                  <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-zinc-400 pointer-events-none">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
                   </span>
-                  <input type="password" id="joinRoomPasswordInput" placeholder="Enter room password" autocomplete="current-password"
-                         class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-xl py-3 pl-10 pr-10 text-sm font-semibold text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition duration-150">
-                  <button type="button" class="toggle-password-btn absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-zinc-200 cursor-pointer" data-target="joinRoomPasswordInput" aria-label="Toggle password visibility">
+                  <input type="password" id="joinRoomPasswordInput" placeholder="Enter password" autocomplete="current-password"
+                         class="w-full bg-white/80 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-2xl py-3.5 pl-11 pr-11 text-sm font-semibold text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all shadow-xs">
+                  <button type="button" class="toggle-password-btn bubbly absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer" data-target="joinRoomPasswordInput" aria-label="Toggle password visibility">
                     <i data-lucide="eye" class="w-4 h-4"></i>
                   </button>
                 </div>
-                <p id="joinPasswordError" class="text-[11px] text-rose-500 mt-1 hidden font-medium flex items-center gap-1"></p>
+                <p id="joinPasswordError" class="text-[11px] text-rose-500 mt-1.5 pl-1 hidden font-medium flex items-center gap-1"></p>
               </div>
-              <button id="btnConfirmJoin" class="w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-xl font-semibold text-xs active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
-                <i data-lucide="arrow-right-circle" class="w-4.5 h-4.5"></i>
-                Join Private Chat Room
+              <button id="btnConfirmJoin" class="bubbly w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-full font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 border-0">
+                <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
+                <span>Join Room</span>
               </button>
-              <button class="w-full text-center text-xs text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200 py-1.5 cursor-pointer btnBackToActions">
-                &larr; Choose Different Options
+              <button class="bubbly w-full text-center text-xs text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 py-1.5 cursor-pointer btnBackToActions">
+                &larr; Back
               </button>
             </div>
           </div>
         </div>
 
-        <div class="text-[10px] text-gray-500 dark:text-zinc-400 flex flex-col items-center text-center max-w-xs mt-3 select-text leading-relaxed">
-          <span>End-to-End Encrypted: Messages are encrypted directly on your device with your room password. No one without the password can read them.</span>
+        <div class="text-[11px] text-zinc-400 dark:text-zinc-500 text-center select-none font-medium mt-auto pb-2">
+          End-to-end encrypted with AES-GCM 256.
         </div>
       </section>
 
       <!-- SCREEN 2: ACTIVE ROOM PANEL -->
       <section id="chatScreen" class="absolute inset-0 flex flex-col overflow-hidden hidden transition-all duration-300">
         
-        <!-- Room Banner Actions -->
-        <div class="bg-gray-100 dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-4 py-2 flex items-center justify-between z-10 text-[11px] select-text">
+        <!-- Room Pill Banner (Floating Sub-Header) -->
+        <div class="bg-white/60 dark:bg-zinc-900/60 backdrop-blur-md border-b border-black/[0.04] dark:border-white/[0.06] px-4 py-2.5 flex items-center justify-between z-10 select-none">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-gray-500 dark:text-zinc-400">ROOM KEY:</span>
-            <span id="displayRoomCode" class="font-mono bg-white dark:bg-zinc-800 text-brand-700 dark:text-brand-400 border border-brand-200 dark:border-zinc-700 rounded-md px-2 py-0.5 font-bold tracking-wider">------</span>
-            <button id="copyCodeBtn" class="p-1 hover:bg-gray-200 dark:hover:bg-zinc-800 rounded text-gray-500 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer" title="Copy Room Invite Link" aria-label="Copy Room Invite Link">
+            <span class="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">ROOM</span>
+            <span id="displayRoomCode" class="font-mono bg-zinc-100 dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 border border-zinc-200 dark:border-zinc-700 rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider">------</span>
+            <button id="copyCodeBtn" class="bubbly p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer" title="Copy Invite Link" aria-label="Copy Invite Link">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
             </button>
           </div>
           
-          <div class="flex items-center gap-2.5">
-            <span id="displayCreatedTime" class="hidden md:inline text-[9px] text-gray-400 mr-1 select-none">Created: Just now</span>
-            
-            <div class="flex items-center gap-1 font-semibold text-gray-600 dark:text-zinc-400">
-              <i data-lucide="users" class="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400"></i>
-              <span id="userCountIndicator">1 user online</span>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 font-semibold text-xs text-zinc-500 dark:text-zinc-400 bg-zinc-100/80 dark:bg-zinc-800/80 px-2.5 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span id="userCountIndicator">1 online</span>
             </div>
 
-            <!-- Optional Extra Creator Features -->
-            <button id="creatorActionMenu" class="p-1 hover:bg-gray-200 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer hidden" title="Creator Options" aria-label="Creator Options">
-              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+            <!-- Creator Action Menu Button -->
+            <button id="creatorActionMenu" class="bubbly p-1.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer hidden" title="Creator Options" aria-label="Creator Options">
+              <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
             </button>
           </div>
         </div>
 
-        <!-- Creator Options Overlay Module -->
-        <div id="creatorMenuOverlay" class="hidden absolute top-10 right-4 bg-white dark:bg-zinc-900 shadow-xl border border-gray-200 dark:border-zinc-800 rounded-xl p-3 z-30 w-52 text-xs">
-          <div class="font-bold text-[10px] mb-2 text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Creator Powers</div>
-          <button id="btnClearAllMessages" class="w-full text-left py-1.5 px-2 hover:bg-red-500/10 hover:text-red-600 rounded text-gray-700 dark:text-zinc-300 flex items-center gap-2 cursor-pointer transition">
+        <!-- Creator Options Overlay Module (Glass Pill Menu) -->
+        <div id="creatorMenuOverlay" class="hidden absolute top-12 right-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl shadow-2xl border border-black/[0.06] dark:border-white/[0.08] rounded-2xl p-2 z-40 w-48 text-xs">
+          <button id="btnClearAllMessages" class="bubbly w-full text-left py-2 px-3 hover:bg-rose-500/10 hover:text-rose-600 rounded-xl text-zinc-700 dark:text-zinc-300 flex items-center gap-2 cursor-pointer transition">
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            Clear All Messages
+            Clear Chat
           </button>
-          <button id="btnExpireRoom" class="w-full text-left py-1.5 px-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded text-gray-700 dark:text-zinc-300 flex items-center gap-2 cursor-pointer transition mt-1">
+          <button id="btnExpireRoom" class="bubbly w-full text-left py-2 px-3 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl text-zinc-700 dark:text-zinc-300 flex items-center gap-2 cursor-pointer transition mt-0.5">
             <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-            Expire Room Now
+            Expire Room
           </button>
         </div>
 
         <!-- MESSAGES CONTAINER -->
-        <div id="messageBoard" class="flex-1 overflow-y-auto px-4 py-4 space-y-3.5 flex flex-col relative">
-          <!-- Welcome Help Bubble -->
-          <div class="mx-auto max-w-[85%] bg-blue-50 dark:bg-zinc-900/60 text-blue-900 dark:text-blue-300 text-xs px-3.5 py-2.5 rounded-2xl flex items-start gap-2 shadow-xs border border-blue-200/60 dark:border-zinc-800 relative select-text mb-2">
-            <i data-lucide="shield-check" class="w-4.5 h-4.5 mt-0.5 shrink-0 text-brand-600 dark:text-brand-500"></i>
-            <div>
-              <p class="font-semibold text-brand-700 dark:text-brand-400">Encrypted Room Active</p>
-              <p class="mt-0.5 leading-relaxed text-[10.5px]">Share the Room Code and Password with your chat partner. Messages are end-to-end encrypted with AES-GCM 256 before leaving your device.</p>
-            </div>
-          </div>
-
-          <!-- Dyn List of Messages -->
-          <div id="messagesList" class="space-y-4 flex-1 flex flex-col justify-end select-text">
+        <div id="messageBoard" class="flex-1 overflow-y-auto px-4 py-4 space-y-3 flex flex-col relative pb-24">
+          <!-- Dynamic List of Messages -->
+          <div id="messagesList" class="space-y-3 flex-1 flex flex-col justify-end select-text">
             <!-- Populated via Database / Local Sandbox -->
           </div>
           
           <div id="bottomAnchor"></div>
         </div>
 
-        <!-- TYPING INDICATOR AND EXTRA NOTIFICATIONS -->
-        <div id="typingIndicatorBox" class="h-5 px-4 text-[10px] text-gray-500 dark:text-zinc-400 flex items-center gap-1 bg-white/80 dark:bg-zinc-900/80 select-none">
-          <!-- Typing user display -->
+        <!-- TYPING INDICATOR -->
+        <div id="typingIndicatorBox" class="absolute bottom-16 inset-x-4 h-5 px-3 text-[10px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 select-none pointer-events-none z-20">
+          <!-- Populated when peers type -->
         </div>
 
-        <!-- BOTTOM CHAT INPUT BAR -->
-        <div class="px-3 py-2.5 bg-white dark:bg-zinc-900 border-t border-gray-200 dark:border-zinc-800 flex items-end gap-2 relative z-10 transition duration-150">
-          
-          <!-- Emoji Fast Selector Trigger -->
-          <button id="emojiTrigger" class="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl text-gray-500 dark:text-zinc-400 hover:text-brand-600 dark:hover:text-brand-400 transition cursor-pointer select-none" title="Quick Emojis" aria-label="Quick Emojis">
-            <i data-lucide="smile" class="w-5 h-5"></i>
-          </button>
-
-          <!-- Input Area -->
-          <div class="flex-1 relative flex">
-            <textarea id="messageTextBox" rows="1" maxlength="1000" placeholder="Type a secure message..." aria-label="Type a secure message"
-                      class="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-xl py-2 px-3 pr-8 text-xs font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 resize-none max-h-24 leading-normal transition duration-150"></textarea>
-            <span id="charCounter" class="absolute right-2.5 bottom-2.5 text-[9px] text-gray-400 dark:text-zinc-500 select-none pointer-events-none">1000</span>
-          </div>
-
-          <!-- Send Button -->
-          <button id="sendMessageBtn" class="bg-brand-600 hover:bg-brand-700 text-white p-2.5 rounded-xl shadow-md active:scale-95 transition-all text-xs cursor-pointer flex items-center justify-center border-0" title="Send message" aria-label="Send message">
-            <i data-lucide="send-horizontal" class="w-4.5 h-4.5"></i>
-          </button>
-        </div>
-
-        <!-- Emoji Selection Drawer -->
-        <div id="emojiDrawer" class="hidden absolute left-4 bottom-14 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-2.5 z-40 max-w-[280px]">
-          <div class="grid grid-cols-8 gap-1.5 text-center text-lg">
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">😆</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">❤️</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">👀</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">🔥</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">🎉</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">👍</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">✨</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">💯</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">😂</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">😍</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">🙏</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">🤔</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">😢</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">👏</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">🙌</button>
-            <button class="emoji-item hover:bg-gray-100 dark:hover:bg-zinc-800 p-1 rounded cursor-pointer transition select-none">💡</button>
+        <!-- FLOATING PILL COMPOSER DOCK -->
+        <div class="absolute bottom-3 inset-x-3 sm:inset-x-4 z-30 pointer-events-none">
+          <div class="pointer-events-auto bg-white/85 dark:bg-zinc-900/85 backdrop-blur-2xl border border-black/[0.08] dark:border-white/[0.1] shadow-xl rounded-full p-1.5 flex items-center gap-2 transition-all duration-200">
+            <textarea id="messageTextBox" rows="1" maxlength="1000" placeholder="Type a message..." aria-label="Type a message"
+                      class="flex-1 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 py-2 px-4 text-xs sm:text-sm font-medium text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 resize-none max-h-24 leading-normal"></textarea>
+            <button id="sendMessageBtn" class="bubbly w-9 h-9 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-600/25 transition-all cursor-pointer border-0" title="Send message" aria-label="Send message">
+              <i data-lucide="arrow-up" class="w-4.5 h-4.5 stroke-[2.5]"></i>
+            </button>
           </div>
         </div>
 
@@ -369,8 +297,8 @@
 
   </div>
 
-  <!-- Notification Overlay System -->
-  <div id="toastNotificationBox" class="fixed right-4 bottom-4 space-y-2 z-50 pointer-events-none select-none max-w-xs text-xs">
+  <!-- Notification Overlay System (Glass Toasts) -->
+  <div id="toastNotificationBox" class="fixed top-4 right-4 space-y-2 z-50 pointer-events-none select-none max-w-xs text-xs">
     <!-- Populated via toast utils -->
   </div>
 
@@ -380,8 +308,7 @@
     import { getDatabase, ref, set, push, onValue, off, remove, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Firebase Configuration Configured via Secure Private Chat Builder
-    // NOTE: Replace with your actual Firebase Web API Key and config for live multi-user sync.
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "863899244996",
       authDomain: "gyani-9ld6j.firebaseapp.com",
@@ -392,16 +319,14 @@
       appId: "1:863899244996:web:abcd1234efgh"
     };
 
-    // Global application configuration variables
     const settings = {
       appName: "ANGHEMMESS",
       maxMessageLength: 1000,
-      rateLimitMs: 1000,
+      rateLimitMs: 800,
       enableDeletion: true,
       enableClearChat: true
     };
 
-    // Application state
     let db = null;
     let connectedRef = null;
     let myUid = '';
@@ -424,7 +349,6 @@
         false,
         ["deriveBits", "deriveKey"]
       );
-      // Deterministic app-level salt for room password derivation across devices
       const salt = encoder.encode("ANGHEMMESS_E2EE_PBKDF2_SALT_V1");
       return window.crypto.subtle.deriveKey(
         {
@@ -465,16 +389,14 @@
         );
         return new TextDecoder().decode(decryptedBuffer);
       } catch (err) {
-        return "🔒 [Decryption Failed - Incorrect Password or Corrupted Key]";
+        return "🔒 [Decryption Failed - Verification Incorrect]";
       }
     }
 
-    // Local state for auto persistence
     const STORAGE_KEY_USER = "secure_chat_user_uid";
     const STORAGE_KEY_NAME = "secure_chat_user_name";
     const STORAGE_KEY_THEME = "secure_chat_pref_theme";
 
-    // Safe storage wrappers
     const safeLocalStorage = {
       getItem: function(key) {
         try { return localStorage.getItem(key); } catch (e) { return this._fallback[key] || null; }
@@ -505,33 +427,26 @@
       _fallback: {}
     };
 
-    // Initialize DOM references
+    // DOM references
     const loginScreen = document.getElementById('loginScreen');
     const chatScreen = document.getElementById('chatScreen');
     const usernameInput = document.getElementById('usernameInput');
     const roomCodeInput = document.getElementById('roomCodeInput');
     const rememberMeInput = document.getElementById('rememberMeInput');
-    const subStatus = document.getElementById('subStatus');
     const connBar = document.getElementById('connBar');
     const displayRoomCode = document.getElementById('displayRoomCode');
     const userCountIndicator = document.getElementById('userCountIndicator');
-    const displayCreatedTime = document.getElementById('displayCreatedTime');
     const messagesList = document.getElementById('messagesList');
     const typingIndicatorBox = document.getElementById('typingIndicatorBox');
     const messageTextBox = document.getElementById('messageTextBox');
-    const charCounter = document.getElementById('charCounter');
     const sendMessageBtn = document.getElementById('sendMessageBtn');
-    const emojiTrigger = document.getElementById('emojiTrigger');
-    const emojiDrawer = document.getElementById('emojiDrawer');
     const toastNotificationBox = document.getElementById('toastNotificationBox');
     const themeIcon = document.getElementById('themeIcon');
     const creatorActionMenu = document.getElementById('creatorActionMenu');
     const creatorMenuOverlay = document.getElementById('creatorMenuOverlay');
 
-    // Init icons
     lucide.createIcons();
 
-    // Inline error utilities
     function showInlineError(elementId, msg) {
       const el = document.getElementById(elementId);
       if (el) {
@@ -551,7 +466,6 @@
       });
     }
 
-    // Attach real-time input error clearing
     ['usernameInput', 'createRoomPasswordInput', 'roomCodeInput', 'joinRoomPasswordInput'].forEach(inputId => {
       const el = document.getElementById(inputId);
       if (el) {
@@ -559,7 +473,6 @@
       }
     });
 
-    // Password visibility toggle logic
     document.querySelectorAll('.toggle-password-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('data-target');
@@ -575,7 +488,6 @@
       });
     });
 
-    // Theme initialization
     function loadInitialSettings() {
       const savedTheme = safeLocalStorage.getItem(STORAGE_KEY_THEME) || "dark";
       if (savedTheme === 'dark') {
@@ -601,7 +513,6 @@
         safeSessionStorage.setItem(STORAGE_KEY_USER, myUid);
       }
 
-      // Check URL search parameters for direct room join invites
       const urlParams = new URLSearchParams(window.location.search);
       const roomInviteCode = urlParams.get('room') || urlParams.get('join');
       if (roomInviteCode) {
@@ -609,12 +520,11 @@
         if (normalized.length >= 4) {
           roomCodeInput.value = normalized;
           triggerView('join');
-          showToast("Auto-filled Room Code: " + normalized, "info");
+          showToast("Room code auto-filled: " + normalized, "info");
         }
       }
     }
 
-    // Toggle Theme Handler
     document.getElementById('themeToggleBtn').addEventListener('click', () => {
       const isDark = document.documentElement.classList.toggle('dark');
       safeLocalStorage.setItem(STORAGE_KEY_THEME, isDark ? 'dark' : 'light');
@@ -623,7 +533,6 @@
       showToast("Switched to " + (isDark ? "Dark theme" : "Light theme"), "info");
     });
 
-    // Sub-panels Switch handles
     document.getElementById('btnInitCreate').addEventListener('click', () => triggerView('create'));
     document.getElementById('btnInitJoin').addEventListener('click', () => triggerView('join'));
     document.querySelectorAll('.btnBackToActions').forEach(btn => {
@@ -647,67 +556,67 @@
       }
     }
 
-    // TOAST SYSTEM
     function showToast(message, type) {
       if (!type) { type = 'info'; }
-      const duration = 3000;
+      const duration = 2800;
       const toast = document.createElement('div');
       
-      let baseClass = 'bg-slate-800 border-slate-700';
+      let baseClass = 'bg-zinc-900/90 text-white border-white/10 dark:bg-zinc-800/90';
       if (type === 'success') {
-        baseClass = 'bg-emerald-600 border-emerald-500';
+        baseClass = 'bg-emerald-600/90 text-white border-emerald-500/20';
       } else if (type === 'error') {
-        baseClass = 'bg-rose-600 border-rose-500';
+        baseClass = 'bg-rose-600/90 text-white border-rose-500/20';
       }
       
-      toast.className = 'flex items-center gap-2 px-3 py-2.5 rounded-xl shadow-lg border text-white transition-opacity duration-300 transform pointer-events-auto ' + baseClass;
+      toast.className = 'bubbly flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl border backdrop-blur-xl transition-all duration-300 transform pointer-events-auto ' + baseClass;
       
-      const iconName = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-octagon' : 'info';
-      toast.innerHTML = '<i data-lucide="' + iconName + '" class="w-4 h-4 text-white shrink-0"></i><span class="font-medium">' + message + '</span>';
+      const iconName = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'info';
+      toast.innerHTML = '<i data-lucide="' + iconName + '" class="w-4 h-4 shrink-0"></i><span class="font-medium">' + message + '</span>';
       toastNotificationBox.appendChild(toast);
       lucide.createIcons();
 
       setTimeout(() => {
         toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
+        toast.style.transform = 'translateY(-6px)';
+        setTimeout(() => toast.remove(), 250);
       }, duration);
     }
 
-    // Connection status bar updates
     function setConnState(state, message, showRetry = false) {
       connBar.classList.remove('hidden');
+      connBar.classList.add('flex');
       const icon = document.getElementById('connIcon');
       const text = document.getElementById('connText');
       const retryBtn = document.getElementById('connRetryBtn');
       
       if (state === 'online') {
-        connBar.className = "w-full bg-emerald-600 text-white text-xs py-1 px-4 text-center font-medium flex items-center justify-center gap-1.5 transition-all select-none z-30";
+        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-emerald-500/30 bg-emerald-600/80 text-white select-none";
         icon.setAttribute('data-lucide', 'shield-check');
-        text.innerText = message || "Connected to Firebase Realtime Database";
+        text.innerText = message || "Connected to Firebase";
         if (retryBtn) retryBtn.classList.add('hidden');
         setTimeout(() => {
           if (db && !db.mockMode) connBar.classList.add('hidden');
         }, 3000);
       } else if (state === 'mock') {
-        connBar.className = "w-full bg-amber-600 text-white text-xs py-1.5 px-4 text-center font-medium flex items-center justify-between transition-all select-none z-30";
+        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-amber-500/30 bg-amber-600/80 text-white select-none";
         icon.setAttribute('data-lucide', 'info');
-        text.innerText = message || "Local Encrypted Sandbox Mode Active";
+        text.innerText = message || "Local Encrypted Sandbox Mode";
         if (retryBtn) {
           retryBtn.classList.remove('hidden');
-          retryBtn.innerText = "Retry Cloud";
+          retryBtn.innerText = "Connect Cloud";
         }
       } else if (state === 'error') {
-        connBar.className = "w-full bg-rose-600 text-white text-xs py-1.5 px-4 text-center font-medium flex items-center justify-between transition-all select-none z-30";
+        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-rose-500/30 bg-rose-600/80 text-white select-none";
         icon.setAttribute('data-lucide', 'alert-circle');
-        text.innerText = message || "Firebase connection unavailable. Operating in local sandbox.";
+        text.innerText = message || "Connection Error";
         if (retryBtn) {
           retryBtn.classList.remove('hidden');
           retryBtn.innerText = "Retry";
         }
       } else if (state === 'connecting') {
-        connBar.className = "w-full bg-blue-600 text-white text-xs py-1 px-4 text-center font-medium flex items-center justify-center gap-1.5 transition-all select-none z-30";
+        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-blue-500/30 bg-blue-600/80 text-white select-none";
         icon.setAttribute('data-lucide', 'loader-2');
-        text.innerText = message || "Connecting to service...";
+        text.innerText = message || "Connecting...";
         if (retryBtn) retryBtn.classList.add('hidden');
       }
       lucide.createIcons();
@@ -717,9 +626,8 @@
       tryInitializeFirebase();
     });
 
-    // Initialize Firebase if credentials valid, otherwise gracefully fall back to local encrypted sandbox
     function tryInitializeFirebase() {
-      setConnState('connecting', 'Connecting to service...');
+      setConnState('connecting', 'Connecting...');
       
       const hasValidApiKey = firebaseConfig.apiKey && 
                              firebaseConfig.apiKey.startsWith('AIza') && 
@@ -729,7 +637,7 @@
 
       if (!hasValidApiKey || hasPlaceholderDomain) {
         console.warn("[ANGHEMMESS] Firebase API key or authDomain is placeholder. Operating in Local Encrypted Sandbox Mode.");
-        setupLocalMockDatabase("Local Sandbox Active: Ready for E2EE chat. (Configure Firebase Web API Key for cross-device sync)");
+        setupLocalMockDatabase("Local Sandbox Active (E2EE)");
         return;
       }
       
@@ -743,43 +651,38 @@
             .then((userCredential) => {
               myUid = userCredential.user.uid;
               safeSessionStorage.setItem(STORAGE_KEY_USER, myUid);
-              setConnState('online', 'Connected & Authenticated securely!');
-              showToast("Connected & Authenticated securely!", "success");
+              setConnState('online', 'Connected & Authenticated');
+              showToast("Connected securely", "success");
               if (currentRoomCode) {
                 setPresenceOnline();
               }
             })
             .catch((authError) => {
               console.error("[ANGHEMMESS] Firebase Authentication failed:", authError.code, authError.message);
-              setConnState('error', "Firebase Auth: " + (authError.code || "Failed") + ". Using Local Sandbox.", true);
-              showToast("Firebase Auth failed. Operating in local offline sandbox.", "error");
-              setupLocalMockDatabase("Local Sandbox Active (Firebase auth failed: " + (authError.code || "Check API Key") + ")");
+              setConnState('mock', "Local Sandbox (Auth unconfigured)", true);
+              setupLocalMockDatabase("Local Sandbox Active");
             });
         } catch (authInitErr) {
-          console.error("[ANGHEMMESS] Auth library initialization error:", authInitErr);
           setupLocalMockDatabase("Local Sandbox Active");
         }
         
         connectedRef = ref(db, ".info/connected");
         onValue(connectedRef, (snap) => {
           if (snap.val() === true) {
-            setConnState('online', 'Connected to Firebase');
+            setConnState('online', 'Connected');
             if (currentRoomCode) {
               setPresenceOnline();
             }
           } else {
-            setConnState('connecting', 'Reconnecting to database...');
+            setConnState('connecting', 'Reconnecting...');
           }
         });
       } catch (err) {
         console.error("[ANGHEMMESS] Firebase init failed: ", err);
-        setupLocalMockDatabase("Local Sandbox Active (Init Error)");
+        setupLocalMockDatabase("Local Sandbox Active");
       }
     }
 
-    // ----------------------------------------------------
-    // IN-MEMORY / LOCAL STORAGE SANDBOX REAL-TIME FALLBACK
-    // ----------------------------------------------------
     let mockSubscriptions = {};
     function setupLocalMockDatabase(statusMessage) {
       db = {
@@ -789,7 +692,7 @@
         }
       };
       
-      setConnState('mock', statusMessage || "Local Encrypted Sandbox Mode Active", true);
+      setConnState('mock', statusMessage || "Local Sandbox Active", true);
 
       if (!localStorage.getItem('local_simulation_rooms')) {
         localStorage.setItem('local_simulation_rooms', JSON.stringify({}));
@@ -813,13 +716,6 @@
       }
       if (mockSubscriptions[roomCode + '/users']) {
         const adjustedOnlineUsers = { ...room.users };
-        if (Object.keys(adjustedOnlineUsers).length <= 1) {
-          adjustedOnlineUsers["user-bot-guide"] = {
-            username: "🛡️ E2EE Security Bot",
-            lastActive: Date.now(),
-            isTyping: false
-          };
-        }
         mockSubscriptions[roomCode + '/users'](adjustedOnlineUsers);
       }
       if (mockSubscriptions[roomCode + '/metadata']) {
@@ -827,16 +723,12 @@
       }
     }
 
-    // ----------------------------------------------------
-    // ACTIONS & ROOM EVENTS
-    // ----------------------------------------------------
-
     function validateAndGetUser() {
       clearInlineErrors();
       const name = usernameInput.value.trim();
       if (!name) {
-        showInlineError('usernameError', 'Please enter a valid nickname (1-25 characters)');
-        showToast("Please enter a valid nickname first!", "error");
+        showInlineError('usernameError', 'Please enter a nickname (1-25 characters)');
+        showToast("Enter a nickname to proceed", "error");
         usernameInput.focus();
         return null;
       }
@@ -857,8 +749,8 @@
       const passwordInput = document.getElementById('createRoomPasswordInput');
       const passwordText = passwordInput.value;
       if (!passwordText || passwordText.length < 6) {
-        showInlineError('createPasswordError', 'Password must be at least 6 characters for strong E2EE encryption');
-        showToast("Room password must be at least 6 characters!", "error");
+        showInlineError('createPasswordError', 'Password must be at least 6 characters');
+        showToast("Password must be at least 6 characters", "error");
         passwordInput.focus();
         return;
       }
@@ -872,7 +764,7 @@
         const verification = await encryptText("VERIFY_ROOM_" + code, activeE2eeKey);
         initializeRoomOnDatabase(code, name, verification.ciphertext, verification.iv);
       } catch (err) {
-        showToast("Failed to derive secure cryptographic keys!", "error");
+        showToast("Key derivation failed", "error");
         console.error(err);
       }
     });
@@ -884,8 +776,8 @@
 
       const inputCode = roomCodeInput.value.trim().toUpperCase();
       if (!inputCode || inputCode.length < 4) {
-        showInlineError('roomCodeError', 'Please enter a valid room code (e.g. R-1234)');
-        showToast("Please enter a valid room code!", "error");
+        showInlineError('roomCodeError', 'Enter a valid room code (e.g. R-1234)');
+        showToast("Enter a valid room code", "error");
         roomCodeInput.focus();
         return;
       }
@@ -893,8 +785,8 @@
       const joinPasswordInput = document.getElementById('joinRoomPasswordInput');
       const enteredPasswordText = joinPasswordInput.value;
       if (!enteredPasswordText || enteredPasswordText.length < 6) {
-        showInlineError('joinPasswordError', 'Please enter the room password (at least 6 characters)');
-        showToast("Please enter the room password to decrypt messages!", "error");
+        showInlineError('joinPasswordError', 'Enter room password (at least 6 characters)');
+        showToast("Enter the room password", "error");
         joinPasswordInput.focus();
         return;
       }
@@ -904,7 +796,6 @@
       joinRoomOnDatabase(inputCode, name, enteredPasswordText);
     });
 
-    // BACKEND DATABASE SYNC HANDLERS
     function initializeRoomOnDatabase(roomCode, creatorName, verificationCipher, verificationIv) {
       if (db.mockMode) {
         const allRooms = JSON.parse(localStorage.getItem('local_simulation_rooms') || '{}');
@@ -927,7 +818,6 @@
         };
         localStorage.setItem('local_simulation_rooms', JSON.stringify(allRooms));
         enterMainChatModule(roomCode, creatorName);
-        postNewMessage(roomCode, "Secure private room initialized. All messages are end-to-end encrypted! 🛡️");
       } else {
         const metadata = {
           createdBy: myUid,
@@ -940,12 +830,10 @@
         set(ref(db, 'rooms/' + roomCode + '/metadata'), metadata)
           .then(() => {
             enterMainChatModule(roomCode, creatorName);
-            postNewMessage(roomCode, "Secure private room generated. Feel free to chat! 🛡️");
           })
           .catch(err => {
-            showToast("Database write denied! Falling back to local offline sandbox.", "error");
             console.error(err);
-            setupLocalMockDatabase("Local Sandbox Active (Database Write Denied)");
+            setupLocalMockDatabase("Local Sandbox Active");
             initializeRoomOnDatabase(roomCode, creatorName, verificationCipher, verificationIv);
           });
       }
@@ -956,8 +844,8 @@
         const allRooms = JSON.parse(localStorage.getItem('local_simulation_rooms') || '{}');
         const targetRoom = allRooms[roomCode];
         if (!targetRoom) {
-          showInlineError('roomCodeError', 'Room code not found or expired');
-          showToast("Private room key not found or expired!", "error");
+          showInlineError('roomCodeError', 'Room not found or expired');
+          showToast("Room not found", "error");
           return;
         }
 
@@ -966,8 +854,8 @@
           deriveKey(passwordText).then(potentialKey => {
             decryptText(meta.verificationCipher, meta.verificationIv, potentialKey).then(decrypted => {
               if (decrypted !== "VERIFY_ROOM_" + roomCode) {
-                showInlineError('joinPasswordError', 'Incorrect room password! Cannot decrypt.');
-                showToast("Incorrect Room Password! Access denied.", "error");
+                showInlineError('joinPasswordError', 'Incorrect password');
+                showToast("Incorrect password", "error");
                 return;
               }
               activeE2eeKey = potentialKey;
@@ -978,13 +866,12 @@
               };
               localStorage.setItem('local_simulation_rooms', JSON.stringify(allRooms));
               enterMainChatModule(roomCode, userName);
-              showToast("Joined room successfully", "success");
+              showToast("Joined room", "success");
             });
           }).catch(err => {
-            showToast("Failed password verification checks!", "error");
+            showToast("Password verification failed", "error");
           });
         } else {
-          showToast("Legacy room detected.", "warning");
           enterMainChatModule(roomCode, userName);
         }
       } else {
@@ -992,8 +879,8 @@
         onValue(metaRef, async (snapshot) => {
           const val = snapshot.val();
           if (!val) {
-            showInlineError('roomCodeError', 'No active room found with this code');
-            showToast("No active room found with code: " + roomCode, "error");
+            showInlineError('roomCodeError', 'Room not found or expired');
+            showToast("Room not found", "error");
             return;
           }
 
@@ -1002,13 +889,13 @@
               const potentialKey = await deriveKey(passwordText);
               const decrypted = await decryptText(val.verificationCipher, val.verificationIv, potentialKey);
               if (decrypted !== "VERIFY_ROOM_" + roomCode) {
-                showInlineError('joinPasswordError', 'Incorrect password! Cannot decrypt messages.');
-                showToast("Incorrect Room Password! Access denied.", "error");
+                showInlineError('joinPasswordError', 'Incorrect room password');
+                showToast("Incorrect room password", "error");
                 return;
               }
               activeE2eeKey = potentialKey;
             } catch (err) {
-              showToast("E2EE verification failed!", "error");
+              showToast("Verification failed", "error");
               return;
             }
           }
@@ -1019,10 +906,8 @@
       }
     }
 
-    // ENTER THE ACTIVE SCREEN
     function enterMainChatModule(roomCode, username) {
       displayRoomCode.innerText = roomCode;
-      subStatus.innerText = settings.appName + " Room";
       loginScreen.classList.add('hidden');
       chatScreen.classList.remove('hidden');
       document.getElementById('leaveRoomActionBtn').classList.remove('hidden');
@@ -1034,6 +919,9 @@
       }
 
       setupPresenceAndListeners(roomCode, username);
+      setTimeout(() => {
+        messageTextBox.focus();
+      }, 150);
     }
 
     function setupPresenceAndListeners(roomCode, username) {
@@ -1045,13 +933,10 @@
           renderOnlineUsersList(usersSnap);
         };
         mockSubscriptions[roomCode + '/metadata'] = (metadataSnap) => {
-          if (metadataSnap && metadataSnap.createdAt) {
-            const dateStr = new Date(metadataSnap.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            displayCreatedTime.innerText = "Started: " + dateStr;
-            displayCreatedTime.classList.remove('hidden');
+          if (!metadataSnap || !metadataSnap.createdAt) {
+            handleCreatorExpiredRoom();
           }
         };
-        
         triggerMockLocalOnValue(roomCode);
       } else {
         userPresenceRef = ref(db, 'rooms/' + roomCode + '/users/' + myUid);
@@ -1076,11 +961,7 @@
         const metadataRef = ref(db, 'rooms/' + roomCode + '/metadata');
         onValue(metadataRef, (snap) => {
           const val = snap.val();
-          if (val && val.createdAt) {
-            const dateStr = new Date(val.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            displayCreatedTime.innerText = "Started: " + dateStr;
-            displayCreatedTime.classList.remove('hidden');
-          } else {
+          if (!val || !val.createdAt) {
             handleCreatorExpiredRoom();
           }
         });
@@ -1094,11 +975,10 @@
       });
     }
 
-    // RENDER ONLINE USERS COUNTER & TYPING STATES
     function renderOnlineUsersList(usersObj) {
       const activeUids = Object.keys(usersObj);
       const onlineCount = activeUids.length;
-      userCountIndicator.innerText = onlineCount + (onlineCount === 1 ? " user online" : " users online");
+      userCountIndicator.innerText = onlineCount + (onlineCount === 1 ? " online" : " online");
 
       const typingUsers = [];
       activeUids.forEach(uid => {
@@ -1109,28 +989,23 @@
 
       if (typingUsers.length > 0) {
         const names = typingUsers.join(', ');
-        typingIndicatorBox.innerHTML = '<div class="flex items-center gap-1 font-semibold text-brand-600 dark:text-brand-400 select-none">' +
-          '<span class="animate-pulse">' + names + ' is typing</span>' +
-          '<div class="flex gap-0.5 items-center">' +
-            '<span class="w-1 h-1 bg-brand-500 rounded-full dot-1"></span>' +
-            '<span class="w-1 h-1 bg-brand-500 rounded-full dot-2"></span>' +
-            '<span class="w-1 h-1 bg-brand-500 rounded-full dot-3"></span>' +
-          '</div>' +
-        '</div>';
+        typingIndicatorBox.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>' +
+          '<span class="font-medium">' + names + ' is typing...</span>';
       } else {
         typingIndicatorBox.innerHTML = '';
       }
     }
 
-    // RENDER CONCURRENT MESSAGES LIST
     async function renderMessagesList(messagesObj) {
       messagesList.innerHTML = '';
       const ids = Object.keys(messagesObj);
       
       if (ids.length === 0) {
-        messagesList.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-center text-gray-400 dark:text-zinc-500">' +
-          '<i data-lucide="messages-square" class="w-10 h-10 mb-2 stroke-1 opacity-60"></i>' +
-          '<span class="text-xs font-medium">No encrypted messages yet. Post a message to start!</span>' +
+        messagesList.innerHTML = '<div class="flex flex-col items-center justify-center py-16 text-center text-zinc-400 dark:text-zinc-600 select-none">' +
+          '<div class="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-800/50 flex items-center justify-center mb-3">' +
+            '<i data-lucide="message-square" class="w-6 h-6 stroke-1"></i>' +
+          '</div>' +
+          '<span class="text-xs font-medium">Say hello to start the conversation</span>' +
         '</div>';
         lucide.createIcons();
         return;
@@ -1150,7 +1025,7 @@
       const decryptedMessages = await Promise.all(listData.map(async msg => {
         if (msg.ciphertext && msg.iv) {
           if (!activeE2eeKey) {
-            msg.text = "🔒 [Message locked - Key inactive]";
+            msg.text = "🔒 [Message locked]";
           } else {
             msg.text = await decryptText(msg.ciphertext, msg.iv, activeE2eeKey);
           }
@@ -1174,25 +1049,25 @@
 
         let deleteBtnHtml = '';
         if (isMe && settings.enableDeletion) {
-          deleteBtnHtml = '<button class="delete-msg-btn text-[9px] text-zinc-400 hover:text-red-500 ml-2 focus:outline-none transition cursor-pointer" data-id="' + msg.idKey + '" title="Delete Message" aria-label="Delete Message">' +
+          deleteBtnHtml = '<button class="delete-msg-btn text-[9px] text-zinc-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity cursor-pointer p-0.5" data-id="' + msg.idKey + '" title="Delete Message" aria-label="Delete Message">' +
             '<i data-lucide="trash" class="w-3 h-3"></i>' +
           '</button>';
         }
 
         let senderHtml = '';
         if (!isMe) {
-          senderHtml = '<span class="text-[10px] font-bold text-brand-600 dark:text-brand-400 ml-1.5 mb-0.5">' + escapeHtml(msg.sender) + '</span>';
+          senderHtml = '<span class="text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 ml-2 mb-1 select-none">' + escapeHtml(msg.sender) + '</span>';
         }
 
         const bubbleClass = isMe 
-          ? 'bg-brand-600 dark:bg-[#005c4b] border-brand-600 dark:border-[#005c4b] text-white dark:text-[#e9edef] rounded-tr-none' 
-          : 'bg-white dark:bg-[#202c33] border-gray-200 dark:border-transparent text-gray-900 dark:text-[#e9edef] rounded-tl-none shadow-xs';
+          ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-xs shadow-sm shadow-emerald-600/10' 
+          : 'bg-white/95 dark:bg-zinc-800/95 text-zinc-900 dark:text-zinc-100 border border-black/[0.04] dark:border-white/[0.06] rounded-2xl rounded-tl-xs shadow-xs';
 
-        card.innerHTML = '<div class="max-w-[85%] flex flex-col">' +
+        card.innerHTML = '<div class="max-w-[82%] flex flex-col group">' +
           senderHtml +
-          '<div class="px-3.5 py-2.5 rounded-2xl border text-xs leading-relaxed break-words relative transition-all group ' + bubbleClass + '">' +
-            '<div class="flex flex-col select-text font-medium text-[12.5px]">' + escapeHtml(msg.text) + '</div>' +
-            '<div class="flex items-center justify-end gap-1 text-[8.5px] mt-1.5 opacity-70 select-none">' +
+          '<div class="px-4 py-2.5 text-xs sm:text-[13px] leading-relaxed break-words relative transition-all ' + bubbleClass + '">' +
+            '<div class="select-text font-normal whitespace-pre-wrap">' + escapeHtml(msg.text) + '</div>' +
+            '<div class="flex items-center justify-end gap-1 text-[8.5px] mt-1 opacity-70 select-none">' +
               '<span>' + msgTime + '</span>' +
               deleteBtnHtml +
             '</div>' +
@@ -1232,19 +1107,17 @@
       }
     }
 
-    // POST NEW MESSAGES TO DB
     function triggerSendMessage() {
       const text = messageTextBox.value.trim();
       if (!text) return;
 
       const now = Date.now();
       if (now - lastSentMessageTime < settings.rateLimitMs) {
-        showToast("Please wait a moment before sending again!", "error");
         return;
       }
 
       if (text.length > settings.maxMessageLength) {
-        showToast("Message exceeds character limit!", "error");
+        showToast("Message exceeds length limit", "error");
         return;
       }
 
@@ -1257,7 +1130,7 @@
 
     async function postNewMessage(roomCode, messageText) {
       if (!activeE2eeKey) {
-        showToast("Encryption key not active. Cannot send.", "error");
+        showToast("Encryption key inactive", "error");
         return;
       }
       try {
@@ -1287,19 +1160,16 @@
           const nextMessageRef = push(msgListRef);
           set(nextMessageRef, messagePayload)
             .catch(err => {
-              showToast("Database write denied. Operating in local sandbox.", "error");
-              console.error(err);
               setupLocalMockDatabase("Local Sandbox Active");
               postNewMessage(roomCode, messageText);
             });
         }
       } catch (err) {
-        showToast("Encryption failed!", "error");
+        showToast("Encryption failed", "error");
         console.error(err);
       }
     }
 
-    // DELETE MESSAGE TRIGGER
     function triggerDeleteMessage(msgId) {
       if (db.mockMode) {
         const allRooms = JSON.parse(localStorage.getItem('local_simulation_rooms') || '{}');
@@ -1308,17 +1178,16 @@
           delete room.messages[msgId];
           localStorage.setItem('local_simulation_rooms', JSON.stringify(allRooms));
           triggerMockLocalOnValue(currentRoomCode);
-          showToast("Message deleted", "success");
+          showToast("Message deleted", "info");
         }
       } else {
         const targetMsgRef = ref(db, 'rooms/' + currentRoomCode + '/messages/' + msgId);
         remove(targetMsgRef)
-          .then(() => showToast("Message deleted", "success"))
-          .catch(err => showToast("Message deletion rejected!", "error"));
+          .then(() => showToast("Message deleted", "info"))
+          .catch(err => showToast("Deletion failed", "error"));
       }
     }
 
-    // TYPING STATE MANAGEMENT
     function handleTypingEvent() {
       setSelfTyping(true);
       if (typingDebounceTimeout) clearTimeout(typingDebounceTimeout);
@@ -1342,9 +1211,8 @@
       }
     }
 
-    // LEAVE THE ACTIVE ROOM
     function triggerLeaveRoom() {
-      if (!confirm("Are you sure you want to exit the private chat? Your typing status and presence will clear.")) {
+      if (!confirm("Exit this private chat?")) {
         return;
       }
       cleanupActivePresenceAndViews();
@@ -1366,22 +1234,21 @@
 
       currentRoomCode = '';
       isCreator = false;
-      displayCreatedTime.classList.add('hidden');
       chatScreen.classList.add('hidden');
       loginScreen.classList.remove('hidden');
       document.getElementById('leaveRoomActionBtn').classList.add('hidden');
       creatorActionMenu.classList.add('hidden');
       creatorMenuOverlay.classList.add('hidden');
       triggerView('welcome');
-      showToast("Left room safely", "info");
+      showToast("Left room", "info");
     }
 
     function handleCreatorExpiredRoom() {
-      showToast("This private room has been closed or expired by the administrator.", "error");
+      showToast("Room closed by creator", "info");
       cleanupActivePresenceAndViews();
     }
 
-    // CREATOR CONTROLS
+    // Creator Actions
     creatorActionMenu.addEventListener('click', (e) => {
       e.stopPropagation();
       creatorMenuOverlay.classList.toggle('hidden');
@@ -1389,14 +1256,12 @@
 
     document.addEventListener('click', () => {
       creatorMenuOverlay.classList.add('hidden');
-      emojiDrawer.classList.add('hidden');
     });
 
     creatorMenuOverlay.addEventListener('click', e => e.stopPropagation());
 
-    // CLEAR CHAT
     document.getElementById('btnClearAllMessages').addEventListener('click', () => {
-      if (!confirm("Are you sure you want to clear EVERY message in this private room? This cannot be undone.")) {
+      if (!confirm("Clear all messages in this room?")) {
         return;
       }
       creatorMenuOverlay.classList.add('hidden');
@@ -1408,19 +1273,18 @@
           room.messages = {};
           localStorage.setItem('local_simulation_rooms', JSON.stringify(allRooms));
           triggerMockLocalOnValue(currentRoomCode);
-          showToast("Cleared room messages", "success");
+          showToast("Chat cleared", "info");
         }
       } else {
         const msgsRef = ref(db, 'rooms/' + currentRoomCode + '/messages');
         remove(msgsRef)
-          .then(() => showToast("Room successfully cleared", "success"))
+          .then(() => showToast("Chat cleared", "info"))
           .catch(() => showToast("Operation denied", "error"));
       }
     });
 
-    // CLOSE ROOM
     document.getElementById('btnExpireRoom').addEventListener('click', () => {
-      if (!confirm("Expire this secure room permanently? All users will be disconnected.")) {
+      if (!confirm("Expire room permanently?")) {
         return;
       }
       creatorMenuOverlay.classList.add('hidden');
@@ -1429,24 +1293,22 @@
         const allRooms = JSON.parse(localStorage.getItem('local_simulation_rooms') || '{}');
         delete allRooms[currentRoomCode];
         localStorage.setItem('local_simulation_rooms', JSON.stringify(allRooms));
-        showToast("Room expired permanently", "info");
+        showToast("Room expired", "info");
         cleanupActivePresenceAndViews();
       } else {
         const roomWholeRef = ref(db, 'rooms/' + currentRoomCode);
         remove(roomWholeRef)
           .then(() => {
-            showToast("Room closed permanently", "info");
+            showToast("Room expired", "info");
             cleanupActivePresenceAndViews();
           })
-          .catch(() => showToast("Database rules blocked expiration task.", "error"));
+          .catch(() => showToast("Operation denied", "error"));
       }
     });
 
-    // INPUT HANDLING & EMOJIS DRAWER
+    // Input handlers
     messageTextBox.addEventListener('input', () => {
       handleTypingEvent();
-      const left = settings.maxMessageLength - messageTextBox.value.length;
-      charCounter.innerText = left;
     });
 
     messageTextBox.addEventListener('keydown', (e) => {
@@ -1458,33 +1320,14 @@
 
     sendMessageBtn.addEventListener('click', triggerSendMessage);
 
-    emojiTrigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      emojiDrawer.classList.toggle('hidden');
-    });
-
-    emojiDrawer.addEventListener('click', e => e.stopPropagation());
-
-    document.querySelectorAll('.emoji-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const em = item.innerHTML;
-        const curText = messageTextBox.value;
-        messageTextBox.value = curText + em;
-        messageTextBox.focus();
-        const left = settings.maxMessageLength - messageTextBox.value.length;
-        charCounter.innerText = left;
-        emojiDrawer.classList.add('hidden');
-      });
-    });
-
-    // Share Room Code Action
+    // Share link
     document.getElementById('copyCodeBtn').addEventListener('click', () => {
       if (!currentRoomCode) return;
       const trackingUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomCode;
       
       navigator.clipboard.writeText(trackingUrl)
         .then(() => {
-          showToast("Shareable room link copied to clipboard!", "success");
+          showToast("Invite link copied", "success");
         })
         .catch(() => {
           navigator.clipboard.writeText(currentRoomCode);
@@ -1494,7 +1337,6 @@
 
     document.getElementById('leaveRoomActionBtn').addEventListener('click', triggerLeaveRoom);
 
-    // Start-up triggers
     loadInitialSettings();
     tryInitializeFirebase();
 
