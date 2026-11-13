@@ -78,12 +78,6 @@
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-gray-100 to-emerald-50/30 text-zinc-900 transition-colors duration-500 dark:from-zinc-950 dark:via-[#090d10] dark:to-zinc-950 dark:text-zinc-100 font-sans select-none overflow-hidden h-screen w-full flex flex-col items-center justify-center p-0 sm:p-4">
 
-  <!-- Persistent Network Connection Bar (Glass Capsule) -->
-  <div id="connBar" class="fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium hidden items-center gap-2 shadow-lg backdrop-blur-xl border transition-all duration-300 select-none">
-    <i data-lucide="wifi" id="connIcon" class="w-3.5 h-3.5"></i>
-    <span id="connText">Checking connection...</span>
-    <button id="connRetryBtn" class="bubbly hidden text-[11px] underline ml-1 cursor-pointer font-bold">Retry</button>
-  </div>
 
   <!-- APP GLASS SHELL -->
   <div class="w-full h-full sm:max-w-md sm:h-[92vh] sm:max-h-[860px] bg-white/75 dark:bg-zinc-900/75 backdrop-blur-2xl shadow-2xl relative flex flex-col overflow-hidden sm:rounded-[36px] border border-black/[0.06] dark:border-white/[0.08] transition-all duration-300">
@@ -433,7 +427,6 @@
     const usernameInput = document.getElementById('usernameInput');
     const roomCodeInput = document.getElementById('roomCodeInput');
     const rememberMeInput = document.getElementById('rememberMeInput');
-    const connBar = document.getElementById('connBar');
     const displayRoomCode = document.getElementById('displayRoomCode');
     const userCountIndicator = document.getElementById('userCountIndicator');
     const messagesList = document.getElementById('messagesList');
@@ -582,53 +575,7 @@
       }, duration);
     }
 
-    function setConnState(state, message, showRetry = false) {
-      connBar.classList.remove('hidden');
-      connBar.classList.add('flex');
-      const icon = document.getElementById('connIcon');
-      const text = document.getElementById('connText');
-      const retryBtn = document.getElementById('connRetryBtn');
-      
-      if (state === 'online') {
-        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-emerald-500/30 bg-emerald-600/80 text-white select-none";
-        icon.setAttribute('data-lucide', 'shield-check');
-        text.innerText = message || "Connected to Firebase";
-        if (retryBtn) retryBtn.classList.add('hidden');
-        setTimeout(() => {
-          if (db && !db.mockMode) connBar.classList.add('hidden');
-        }, 3000);
-      } else if (state === 'mock') {
-        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-amber-500/30 bg-amber-600/80 text-white select-none";
-        icon.setAttribute('data-lucide', 'info');
-        text.innerText = message || "Local Encrypted Sandbox Mode";
-        if (retryBtn) {
-          retryBtn.classList.remove('hidden');
-          retryBtn.innerText = "Connect Cloud";
-        }
-      } else if (state === 'error') {
-        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-rose-500/30 bg-rose-600/80 text-white select-none";
-        icon.setAttribute('data-lucide', 'alert-circle');
-        text.innerText = message || "Connection Error";
-        if (retryBtn) {
-          retryBtn.classList.remove('hidden');
-          retryBtn.innerText = "Retry";
-        }
-      } else if (state === 'connecting') {
-        connBar.className = "fixed top-3 z-50 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 shadow-lg backdrop-blur-xl border border-blue-500/30 bg-blue-600/80 text-white select-none";
-        icon.setAttribute('data-lucide', 'loader-2');
-        text.innerText = message || "Connecting...";
-        if (retryBtn) retryBtn.classList.add('hidden');
-      }
-      lucide.createIcons();
-    }
-
-    document.getElementById('connRetryBtn').addEventListener('click', () => {
-      tryInitializeFirebase();
-    });
-
     function tryInitializeFirebase() {
-      setConnState('connecting', 'Connecting...');
-      
       const hasValidApiKey = firebaseConfig.apiKey && 
                              firebaseConfig.apiKey.startsWith('AIza') && 
                              firebaseConfig.apiKey.length >= 30;
@@ -636,8 +583,7 @@
                                    firebaseConfig.authDomain.includes('YOUR_PROJECT_ID');
 
       if (!hasValidApiKey || hasPlaceholderDomain) {
-        console.warn("[ANGHEMMESS] Firebase API key or authDomain is placeholder. Operating in Local Encrypted Sandbox Mode.");
-        setupLocalMockDatabase("Local Sandbox Active (E2EE)");
+        setupLocalMockDatabase();
         return;
       }
       
@@ -651,48 +597,36 @@
             .then((userCredential) => {
               myUid = userCredential.user.uid;
               safeSessionStorage.setItem(STORAGE_KEY_USER, myUid);
-              setConnState('online', 'Connected & Authenticated');
-              showToast("Connected securely", "success");
               if (currentRoomCode) {
                 setPresenceOnline();
               }
             })
-            .catch((authError) => {
-              console.error("[ANGHEMMESS] Firebase Authentication failed:", authError.code, authError.message);
-              setConnState('mock', "Local Sandbox (Auth unconfigured)", true);
-              setupLocalMockDatabase("Local Sandbox Active");
+            .catch(() => {
+              setupLocalMockDatabase();
             });
         } catch (authInitErr) {
-          setupLocalMockDatabase("Local Sandbox Active");
+          setupLocalMockDatabase();
         }
         
         connectedRef = ref(db, ".info/connected");
         onValue(connectedRef, (snap) => {
-          if (snap.val() === true) {
-            setConnState('online', 'Connected');
-            if (currentRoomCode) {
-              setPresenceOnline();
-            }
-          } else {
-            setConnState('connecting', 'Reconnecting...');
+          if (snap.val() === true && currentRoomCode) {
+            setPresenceOnline();
           }
         });
       } catch (err) {
-        console.error("[ANGHEMMESS] Firebase init failed: ", err);
-        setupLocalMockDatabase("Local Sandbox Active");
+        setupLocalMockDatabase();
       }
     }
 
     let mockSubscriptions = {};
-    function setupLocalMockDatabase(statusMessage) {
+    function setupLocalMockDatabase() {
       db = {
         mockMode: true,
         getRef: function(pathStr) {
           return pathStr;
         }
       };
-      
-      setConnState('mock', statusMessage || "Local Sandbox Active", true);
 
       if (!localStorage.getItem('local_simulation_rooms')) {
         localStorage.setItem('local_simulation_rooms', JSON.stringify({}));
@@ -833,7 +767,7 @@
           })
           .catch(err => {
             console.error(err);
-            setupLocalMockDatabase("Local Sandbox Active");
+            setupLocalMockDatabase();
             initializeRoomOnDatabase(roomCode, creatorName, verificationCipher, verificationIv);
           });
       }
@@ -1160,7 +1094,7 @@
           const nextMessageRef = push(msgListRef);
           set(nextMessageRef, messagePayload)
             .catch(err => {
-              setupLocalMockDatabase("Local Sandbox Active");
+              setupLocalMockDatabase();
               postNewMessage(roomCode, messageText);
             });
         }
